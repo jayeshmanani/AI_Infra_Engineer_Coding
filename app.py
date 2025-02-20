@@ -3,7 +3,9 @@ import numpy as np
 from fastapi import FastAPI, File, UploadFile
 from io import BytesIO
 import chromadb
-import pymongo
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
+from config import Config
 
 # Initialize  the FastAPI app
 app = FastAPI()
@@ -12,20 +14,15 @@ app = FastAPI()
 chroma_client = chromadb.PersistentClient(path='./chroma_db')
 collection = chroma_client.get_or_create_collection(name='test_collection')
 
-collection.add(
-    ids=['1', '2', '3'],
-    embeddings=np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]]),
-    metadatas=[{'name': 'A'}, {'name': 'B'}, {'name': 'C'}]
-)
 
-results = collection.query(
-    query_embeddings=np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]]),
-    n_results=2
-)
-
-print("Results Are : ", results)
-
-
-
-
+# MongoDB setup
+mongo_uri = f"mongodb+srv://{Config.MONGO_USERNAME}:{Config.MONGO_PASSWORD}@cluster0.hclcr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+# Create a new client and connect to the server
+client = MongoClient(mongo_uri, server_api=ServerApi('1'))
+# Send a ping to confirm a successful connection
+try:
+    client.admin.command('ping')
+    print("Pinged your deployment. You successfully connected to MongoDB!")
+except Exception as e:
+    print(e)
 
