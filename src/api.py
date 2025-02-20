@@ -1,19 +1,16 @@
-from fastapi import FastAPI, File, UploadFile, Request, Form
+from fastapi import FastAPI, File, UploadFile, Request, Form, APIRouter
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from src.pipeline import ProductPipeline
 import os
 import json
 
-app = FastAPI()
+router = APIRouter()
 pipeline = ProductPipeline()
 templates = Jinja2Templates(directory="templates")
 
-# Serve static files from data/ if needed (optional)
-# from fastapi.staticfiles import StaticFiles
-# app.mount("/data", StaticFiles(directory="data"), name="data")
 
-@app.get("/", response_class=HTMLResponse)
+@router.get("/", response_class=HTMLResponse)
 async def homepage(request: Request):
     # Fetch all products from MongoDB
     products = list(pipeline.db.products.find())
@@ -22,7 +19,7 @@ async def homepage(request: Request):
         {"request": request, "products": products}
     )
 
-@app.post("/add_product")
+@router.post("/add_product")
 async def add_product(
     request: Request,
     name: str = Form(...),
@@ -61,7 +58,7 @@ async def add_product(
             {"request": request, "products": products, "error": str(e)}
         )
 
-@app.post("/match_product")
+@router.post("/match_product")
 async def match_product(request: Request, file: UploadFile = File(...)):
     try:
         # Save uploaded file temporarily in data/
