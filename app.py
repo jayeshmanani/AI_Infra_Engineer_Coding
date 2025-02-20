@@ -20,7 +20,7 @@ collection.add(
 
 results = collection.query(
     query_embeddings=np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]]),
-    n_results=1
+    n_results=2
 )
 
 print("Results Are : ", results)
