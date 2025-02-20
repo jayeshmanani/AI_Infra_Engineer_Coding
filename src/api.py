@@ -40,7 +40,7 @@ async def add_product(
             "price": price,
             "filename": file.filename  # Store filename for display
         }
-        print("Temp Path", temp_path, "Metadata", metadata) 
+
         success = pipeline.add_product(temp_path, metadata)
         if not success:
             raise Exception("Failed to add product")
@@ -59,18 +59,26 @@ async def add_product(
         )
 
 @router.post("/match_product")
-async def match_product(request: Request, file: UploadFile = File(...)):
+async def match_product(request: Request, file: UploadFile = File(None), query: str = Form(None)):
     try:
-        # Save uploaded file temporarily in data/
-        os.makedirs("data", exist_ok=True)
-        temp_path = f"data/temp_{file.filename}"
-        with open(temp_path, "wb") as f:
-            f.write(await file.read())
+        if not file and not query:
+            raise ValueError("Please provide an image, text, or both for search")
         
-        result = pipeline.match_product(temp_path)
-        os.remove(temp_path)  # Clean up temp file
+        image_path = None
+
+        if file and file.filename:
+            os.makedirs("data", exist_ok=True)
+            image_path = f"data/temp_{file.filename}"
+            with open(image_path, "wb") as f:
+                f.write(await file.read())
+
+        result = pipeline.match_product(image_path=image_path, text=query)
+
+        if image_path and os.path.exists(image_path):
+            os.remove(image_path) # Clean up temp image
         
-        products = list(pipeline.db.products.find())
+        products = list(pipeline.db.products.find({}, {"_id": 0}))
+
         if result:
             return templates.TemplateResponse(
                 "index.html",

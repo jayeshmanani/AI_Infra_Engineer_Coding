@@ -7,7 +7,7 @@ class ProductModel:
         self.model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
         self.processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 
-    def get_embeddings(self, image_path):
+    def get_image_embeddings(self, image_path):
         try:
             # Open and process the image
             image = Image.open(image_path).convert('RGB')
@@ -21,4 +21,19 @@ class ProductModel:
                 image_embeds = self.model.visual_projection(image_embeds)  # Project to common space
             return image_embeds.numpy()
         except Exception as e:
-            raise ValueError(f"Failed to get embeddings: {str(e)}")
+            raise ValueError(f"Failed to get Image embeddings: {str(e)}")
+        
+
+    def get_text_embeddings(self, text):
+        try:
+            inputs = self.processor(text=[text], return_tensors="pt", padding=True, truncation=True)
+            with torch.no_grad():
+                text_outputs = self.model.text_model(
+                    input_ids=inputs['input_ids'],
+                    attention_mask=inputs['attention_mask']
+                )
+                text_embeds = text_outputs.pooler_output
+                text_embeds = self.model.text_projection(text_embeds)
+            return text_embeds.numpy()
+        except Exception as e:
+            raise ValueError(f"Failed to get text embeddings: {str(e)}")

@@ -36,8 +36,10 @@
     <div class="form-container">
         <h2>Match Product</h2>
         <form action="/match_product" method="post" enctype="multipart/form-data">
-            <label>Upload Image: <input type="file" name="file" accept="image/*" required></label><br>
+            <label>Upload Image: <input type="file" name="file" accept="image/*"></label><br>
+            <input type="text" name="query" placeholder="Text query (e.g., name or category)">
             <button type="submit">Find Match</button>
+            <p><small>Use image, text, or both to search.</small></p>
         </form>
     </div>
 
