@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Matcher</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .form-container { margin-bottom: 20px; }
+        .product-list { margin-top: 20px; }
+        .product { border: 1px solid #ccc; padding: 10px; margin: 5px 0; }
+        .message { color: green; }
+        .error { color: red; }
+        img { max-width: 200px; height: auto; }
+    </style>
+</head>
+<body>
+    <h1>
+    <a href="/">
+        Product Matcher
+      </a>
+    </h1>
+    <!-- Add Product Form -->
+    <div class="form-container">
+        <h2>Add Product</h2>
+        <form action="/add_product" method="post" enctype="multipart/form-data">
+            <label>Name: <input type="text" name="name" required></label><br>
+            <label>Category: <input type="text" name="category" required></label><br>
+            <label>Price: <input type="number" step="0.01" name="price" required></label><br>
+            <label>Image: <input type="file" name="file" accept="image/*" required></label><br>
+            <button type="submit">Add Product</button>
+        </form>
+    </div>
+
+    <!-- Match Product Form -->
+    <div class="form-container">
+        <h2>Match Product</h2>
+        <form action="/match_product" method="post" enctype="multipart/form-data">
+            <label>Upload Image: <input type="file" name="file" accept="image/*" required></label><br>
+            <button type="submit">Find Match</button>
+        </form>
+    </div>
+
+    <!-- Messages -->
+    {% if message %}
+        <p class="message">{{ message }}</p>
+    {% endif %}
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <!-- Match Result -->
+    {% if match %}
+        <h3>Match Found</h3>
+        <div class="product">
+            <p>Name: {{ match.name }}</p>
+            <p>Category: {{ match.category }}</p>
+            <p>Price: ${{ match.price }}</p>
+            <p>Distance: {{ distance }}</p>
+            {% if match.filename %}
+                <img src="/data/{{ match.filename }}" alt="{{ match.name }}">
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <!-- Product List -->
+    <div class="product-list">
+        <h2>Products</h2>
+        {% if products %}
+            {% for product in products %}
+                <div class="product">
+                    <p>Name: {{ product.name }}</p>
+                    <p>Category: {{ product.category }}</p>
+                    <p>Price: ${{ product.price }}</p>
+                    {% if product.filename %}
+                        <img src="/data/{{ product.filename }}" alt="{{ product.name }}">
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No products added yet.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

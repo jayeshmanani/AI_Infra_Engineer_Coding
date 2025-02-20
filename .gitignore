@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 
 config.py
+chroma_db/
 
 # C extensions
 *.so
