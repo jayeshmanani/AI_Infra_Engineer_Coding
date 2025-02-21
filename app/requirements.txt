@@ -1,0 +1,6 @@
+pymongo
+chromadb
+fastapi
+uvicorn
+jinja2
+requests

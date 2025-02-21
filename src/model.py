@@ -7,6 +7,21 @@ class ProductModel:
         self.model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
         self.processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 
+        print("Quantizing model components for CPU compatibility (mocking TensorRT)...")
+        self.model.vision_model = torch.quantization.quantize_dynamic(
+            self.model.vision_model, {torch.nn.Linear}, dtype=torch.qint8
+        )
+        self.model.text_model = torch.quantization.quantize_dynamic(
+            self.model.text_model, {torch.nn.Linear}, dtype=torch.qint8
+        )
+        self.model.visual_projection = torch.quantization.quantize_dynamic(
+            self.model.visual_projection, {torch.nn.Linear}, dtype=torch.qint8
+        )
+        self.model.text_projection = torch.quantization.quantize_dynamic(
+            self.model.text_projection, {torch.nn.Linear}, dtype=torch.qint8
+        )
+        self.model.eval()
+
     def get_image_embeddings(self, image_path):
         try:
             # Open and process the image

@@ -30,9 +30,6 @@ class Database:
         return self.products.find_one({"embedding_id": product_id})
 
     def query_vector(self, image_embedding=None, text_embedding=None):
-        print(image_embedding is None)
-        print(text_embedding is None)
-
         if image_embedding is None and text_embedding is None:
             raise ValueError("At least one embedding must be provided in Query Vector Search")
         
