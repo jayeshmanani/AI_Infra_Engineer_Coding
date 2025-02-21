@@ -2,7 +2,7 @@ import numpy as np
 from src.model import ProductModel
 from src.database import Database
 from src.logger import setup_logger
-from AI_Infra_Engineer_Coding.src.config import Config
+from src.config import Config
 import requests
 # from tritonclient.http import InferenceServerClient
 
@@ -67,7 +67,7 @@ class ProductPipeline:
             image_embedding = np.array(response_data.get("image_embeds")) if image_path else None
             text_embedding = np.array(response_data.get("text_embeds")) if text else None
             
-            result = self.db.query_vector(image_embedding, text_embedding, image_weight, text_weight)
+            result = self.db.query_vector(image_embedding, text_embedding)
             match_id = result['ids'][0][0]
             metadata = self.db.find_product(match_id)
             self.logger.info(f"Match found: {match_id}")

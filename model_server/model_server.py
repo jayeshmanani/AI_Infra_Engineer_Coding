@@ -1,5 +1,5 @@
 from fastapi import FastAPI, File, UploadFile
-from src.model import ProductModel
+from model import ProductModel
 import numpy as np
 from PIL import Image
 import io

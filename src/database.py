@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 import chromadb
-from config import Config
+from src.config import Config
 
 class Database:
     def __init__(self):

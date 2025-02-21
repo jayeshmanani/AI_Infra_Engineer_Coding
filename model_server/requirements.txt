@@ -4,3 +4,4 @@ torch
 transformers
 pillow
 numpy
+python-multipart
