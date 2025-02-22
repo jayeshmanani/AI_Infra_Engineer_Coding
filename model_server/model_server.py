@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile, Request
+from fastapi import FastAPI, File, UploadFile, Form
 from src.model import ProductModel
 import numpy as np
 from PIL import Image
@@ -14,7 +14,7 @@ app = FastAPI()
 model = ProductModel()
 
 @app.post("/infer")
-async def infer(request: Request, image: UploadFile = File(None), text: str = None):
+async def infer(image: UploadFile = File(None), text: str = Form(None)):
     logger.info(f"Received in infer: image={image.filename if image is not None else None}, text={text}")
     image_path = "temp_image.jpg"
     """Mock Triton inference endpoint for image and text embeddings."""
