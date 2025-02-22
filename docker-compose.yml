@@ -1,4 +1,22 @@
 services:
+  app:
+    build:
+      context: .
+      dockerfile: app/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./src:/app/src
+      - ./app/app.py:/app/app.py
+      - ./templates:/app/templates
+    depends_on:
+      model-server:
+        condition: service_healthy
+    environment:
+      - PYTHONUNBUFFERED=1
+    tty: true
+
   model-server:
     build:
       context: .
@@ -6,8 +24,8 @@ services:
     ports:
       - "8001:8001"
     volumes:
-      - ./model_server/model_server.py:/app/model_server.py  # Dynamic updates
-      - ./src/model.py:/app/model.py  # Dynamic updates
+      - ./model_server/model_server.py:/app/model_server.py
+      - ./src/model.py:/app/model.py
     environment:
       - PYTHONUNBUFFERED=1
     healthcheck:
@@ -15,5 +33,5 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
-      start_period: 60s  # Covers model load if cache fails
+      start_period: 60s
     tty: true

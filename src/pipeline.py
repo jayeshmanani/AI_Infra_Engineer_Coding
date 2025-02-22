@@ -11,8 +11,8 @@ class ProductPipeline:
         self.logger = setup_logger()
         self.model = ProductModel()
         self.db = Database()
-        self.model_server_url = "http://localhost:8001/infer" # For local testing
-        # self.model_server_url = "http://model-server:8001/infer" # For docker-compose
+        # self.model_server_url = "http://localhost:8001/infer" # For local testing
+        self.model_server_url = "http://model-server:8001/infer" # For docker-compose
 
     def add_product(self, image_path, metadata):
         try:
