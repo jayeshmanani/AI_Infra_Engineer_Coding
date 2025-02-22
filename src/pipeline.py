@@ -11,7 +11,8 @@ class ProductPipeline:
         self.logger = setup_logger()
         self.model = ProductModel()
         self.db = Database()
-        self.model_server_url = "http://model-server:8001/infer"
+        self.model_server_url = "http://localhost:8001/infer" # For local testing
+        # self.model_server_url = "http://model-server:8001/infer" # For docker-compose
 
     def add_product(self, image_path, metadata):
         try:
@@ -46,29 +47,44 @@ class ProductPipeline:
 
     def match_product(self, image_path=None, text=None):
         try:
-            if not image_path and not text:
+            print("match start in pipeline")
+            if image_path is None and text is None:
                 raise ValueError("At least one of image or text must be provided")
             
-            triton_data = {}
+            files = {}
+            data = {}
             if image_path:
                 with open(image_path, "rb") as f:
-                    triton_data["image"] = f
+                    files["image"] = ("image.jpg", f.read(), "image/jpeg") 
+                self.logger.info(f"Sending image_path: {image_path}")
             if text:
-                triton_data["text"] = text
+                data["text"] = text
+                self.logger.info(f"Sending text: {text}")
             
+            self.logger.info(f"Requesting {self.model_server_url} with files={list(files.keys())}, data={data}")
+
             triton_response = requests.post(
                 self.model_server_url,
-                files=triton_data if image_path else None,
-                data=triton_data if text and not image_path else None
+                files=files,
+                data=data,
+                timeout=10
             )
+            self.logger.info(f"Response status: {triton_response.status_code}, content: {triton_response.text}")
             triton_response.raise_for_status()
             response_data = triton_response.json()
+
+            print("response_data", response_data)
             
-            image_embedding = np.array(response_data.get("image_embeds")) if image_path else None
-            text_embedding = np.array(response_data.get("text_embeds")) if text else None
+            image_embedding = response_data.get("image_embeds")
+            text_embedding = response_data.get("text_embeds")
             
-            result = self.db.query_vector(image_embedding, text_embedding)
+            print("image_embedding pipeline", image_embedding)
+            print("text_embedding pipeline", text_embedding)
+            result = self.db.query_vector(image_embedding=np.array(image_embedding, dtype=np.float32) if image_embedding is not None else None, 
+                                          text_embedding=np.array(text_embedding, dtype=np.float32) if text_embedding is not None else None)
+            print("result", result)
             match_id = result['ids'][0][0]
+            print("match_id", match_id)
             metadata = self.db.find_product(match_id)
             self.logger.info(f"Match found: {match_id}")
             return {
@@ -97,6 +113,6 @@ class ProductPipeline:
             # }
         except Exception as e:
             self.logger.error(f"Match failed: {e}")
-            print('Error Comes here,', e)
+            print('Error Comes here in Pipeline,', e)
             self.db.log_error(e)
             return None

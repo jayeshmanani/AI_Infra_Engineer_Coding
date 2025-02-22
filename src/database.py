@@ -30,9 +30,12 @@ class Database:
         return self.products.find_one({"embedding_id": product_id})
 
     def query_vector(self, image_embedding=None, text_embedding=None):
+        print("Query Vector Search")
         if image_embedding is None and text_embedding is None:
             raise ValueError("At least one embedding must be provided in Query Vector Search")
         
+        print("image_embedding QV", image_embedding)
+        print("text_embedding QV", text_embedding)
         if image_embedding is not None and text_embedding is not None:
             image_result = self.image_collection.query(query_embeddings=image_embedding.tolist(), n_results=1)
             text_result = self.text_collection.query(query_embeddings=text_embedding.tolist(), n_results=1)
@@ -42,6 +45,7 @@ class Database:
                 'distances': [[combined_distance]]
             }
         elif image_embedding is not None:
+            print("image_embedding QV inside", image_embedding)
             return self.image_collection.query(query_embeddings=image_embedding.tolist(), n_results=1)
         elif text_embedding is not None:
             return self.text_collection.query(query_embeddings=text_embedding.tolist(), n_results=1)
