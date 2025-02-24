@@ -4,7 +4,7 @@ from src.config import Config
 
 class Database:
     def __init__(self):
-        # MongoDB Atlas
+        # MongoDB Atlas from My Account of Mongo DB 
         self.mongo_client = MongoClient(Config.MONGO_URI)
         self.db = self.mongo_client[Config.DB_NAME]
         self.products = self.db['products']
@@ -34,18 +34,15 @@ class Database:
         if image_embedding is None and text_embedding is None:
             raise ValueError("At least one embedding must be provided in Query Vector Search")
         
-        print("image_embedding QV", image_embedding)
-        print("text_embedding QV", text_embedding)
         if image_embedding is not None and text_embedding is not None:
             image_result = self.image_collection.query(query_embeddings=image_embedding.tolist(), n_results=1)
             text_result = self.text_collection.query(query_embeddings=text_embedding.tolist(), n_results=1)
             combined_distance = (image_result['distances'][0][0] + text_result['distances'][0][0]) / 2
             return {
-                'ids': image_result['ids'],  # Assuming same order; could refine with more logic
+                'ids': image_result['ids'],
                 'distances': [[combined_distance]]
             }
         elif image_embedding is not None:
-            print("image_embedding QV inside", image_embedding)
             return self.image_collection.query(query_embeddings=image_embedding.tolist(), n_results=1)
         elif text_embedding is not None:
             return self.text_collection.query(query_embeddings=text_embedding.tolist(), n_results=1)

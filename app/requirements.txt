@@ -4,7 +4,4 @@ fastapi
 uvicorn
 jinja2
 requests
-transformers
 python-multipart
-torch
-Pillow

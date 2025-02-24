@@ -1,10 +1,11 @@
 from fastapi import FastAPI, File, UploadFile, Form
-from src.model import ProductModel
+from typing import Annotated, Optional
 import numpy as np
 from PIL import Image
 import io
+import shutil
 import os
-
+from model import ProductModel
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -13,18 +14,25 @@ logger = logging.getLogger(__name__)
 app = FastAPI()
 model = ProductModel()
 
+@app.get("/")
+async def home():
+    return {"message": "Welcome to the model server!"}
+
 @app.post("/infer")
-async def infer(image: UploadFile = File(None), text: str = Form(None)):
+async def infer(
+    image: Annotated[Optional[UploadFile], File()] = None, 
+    text: Annotated[Optional[str], Form()] = None
+):
     logger.info(f"Received in infer: image={image.filename if image is not None else None}, text={text}")
     image_path = "temp_image.jpg"
-    """Mock Triton inference endpoint for image and text embeddings."""
+    """Mock inference endpoint for image and text embeddings."""
     try:
-        print("Inference Start")
+        # print("Inference Start")
         print(f"Received: image={image}, text={text}")  # Debug print
-        if image is None and text is None:
+        if not image and not text:
             return {"error": "Provide image, text, or both for inference"}
         
-        if image is not None and text is not None:
+        if image and text:
             image_content = await image.read()
             image_file = io.BytesIO(image_content)
             
@@ -45,7 +53,6 @@ async def infer(image: UploadFile = File(None), text: str = Form(None)):
             text_embeds = model.get_text_embeddings(text)
             return {"text_embeds": text_embeds.tolist()}
     except Exception as e:
-        print("Error Comes here in Model Server Infer", e)
         return {"error": str(e)}
     finally:
         if os.path.exists(image_path):
