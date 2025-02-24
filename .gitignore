@@ -3,7 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-config.py
+config2.py
 chroma_db/
 
 # C extensions

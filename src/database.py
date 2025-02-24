@@ -7,11 +7,11 @@ class Database:
         # MongoDB Atlas from My Account of Mongo DB 
         self.mongo_client = MongoClient(Config.MONGO_URI)
         self.db = self.mongo_client[Config.DB_NAME]
-        self.products = self.db['products']
-        self.logs = self.db['logs']
+        self.products = self.db[Config.Collection_NAME]
+        self.logs = self.db[Config.LOG_DB]
         
         # Local ChromaDB
-        self.chroma_client = chromadb.PersistentClient(path="./chroma_db")
+        self.chroma_client = chromadb.PersistentClient(path= Config.CHROMA_DB_PATH)
         self.image_collection = self.chroma_client.create_collection(Config.IMAGE_COLLECTION, get_or_create=True)
         self.text_collection = self.chroma_client.create_collection(Config.TEXT_COLLECTION, get_or_create=True)
 
